@@ -68,7 +68,7 @@ Do NOT include any commentary, markdown formatting, or preamble outside the JSON
         { role: 'system', content: systemPrompt },
         { role: 'user', content: prompt },
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: 'openai/gpt-oss-120b',
       temperature: 0.1,
       response_format: { type: 'json_object' },
     });
@@ -121,7 +121,7 @@ Explanation:`;
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: 'openai/gpt-oss-120b',
       max_tokens: 60,
       temperature: 0.3,
     });

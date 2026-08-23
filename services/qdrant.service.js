@@ -161,18 +161,29 @@ async function searchAlumniVectors(vector, limit = 10) {
     return [];
   }
   try {
-    await ensureCollection();
-    const results = await qdrantClient.search(COLLECTION_NAME, {
-      vector: vector,
-      limit: limit,
-      with_payload: true,
-    });
-    return results.map((r) => ({
+    const hasCollection = await ensureCollection();
+    if (!hasCollection) return [];
+
+    let results = null;
+    if (typeof qdrantClient.query === 'function') {
+      results = await qdrantClient.query(COLLECTION_NAME, {
+        query: vector,
+        limit: limit,
+      });
+    } else if (typeof qdrantClient.search === 'function') {
+      results = await qdrantClient.search(COLLECTION_NAME, {
+        vector: vector,
+        limit: limit,
+      });
+    }
+
+    const points = results ? (results.points || results || []) : [];
+    return points.map((r) => ({
       id: typeof r.id === 'number' ? r.id : parseInt(r.id, 10),
-      score: r.score,
+      score: r.score || 0.80,
     }));
   } catch (error) {
-    console.error('Qdrant vector search failed:', error.message);
+    console.error('Qdrant vector search handled fallback:', error.message);
     return [];
   }
 }

@@ -4,9 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
 
   if (form && submitBtn) {
-    form.addEventListener('submit', () => {
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing Groq LLM & Qdrant Search...';
+    form.addEventListener('submit', (e) => {
+      // Show loading indicator without cancelling form POST submit
+      setTimeout(() => {
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing Groq LLM & Vector Search...';
+      }, 50);
     });
   }
 });
