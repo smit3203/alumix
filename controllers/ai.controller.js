@@ -48,19 +48,14 @@ exports.postAiSearch = async (req, res) => {
       scoreMap[m.id] = m.score;
     });
 
-    // Fallback: If Qdrant returns no results or is unpopulated, fetch all alumni IDs to match against PostgreSQL
-    if (matchingAlumniIds.length === 0) {
-      const allAlumniRes = await db.query('SELECT id FROM alumni_profiles LIMIT 10');
-      matchingAlumniIds = allAlumniRes.rows.map((r) => r.id);
-    }
-
+    // If no alumni exceed the semantic relevance threshold, return empty results (renders clean empty state)
     if (matchingAlumniIds.length === 0) {
       return res.render('ai/finder', {
         title: 'AI Finder - Semantic Alumni Match',
         results: [],
         query: query.trim(),
         extractedParams: extracted,
-        error: 'No alumni currently registered in the database.',
+        error: null,
       });
     }
 

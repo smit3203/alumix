@@ -233,10 +233,14 @@ async function searchAlumniVectors(vector, limit = 10) {
   // 2. High-Performance Local Vector Cosine Engine (100% Reliable Fallback)
   await preloadLocalVectors();
 
+  const MIN_SIMILARITY_THRESHOLD = 0.28;
   const scoredMatches = [];
   for (const [alumniId, alumniVec] of localVectorCache.entries()) {
     const sim = computeCosineSimilarity(vector, alumniVec);
-    scoredMatches.push({ id: alumniId, score: sim });
+    // Only include matches that exceed the semantic relevance threshold
+    if (sim >= MIN_SIMILARITY_THRESHOLD) {
+      scoredMatches.push({ id: alumniId, score: sim });
+    }
   }
 
   // Sort descending by cosine similarity score
