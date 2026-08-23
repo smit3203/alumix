@@ -65,6 +65,7 @@ exports.postAiSearch = async (req, res) => {
     }
 
     // Step 4: Fetch complete alumni records from PostgreSQL source of truth
+    const placeholders = matchingAlumniIds.map((_, i) => `$${i + 1}`).join(', ');
     const alumniRecordsRes = await db.query(
       `SELECT a.id, a.name, a.graduation_year, a.job_role, a.location, a.company_name,
               a.bio, a.mentorship_available, a.referral_available, a.experience_years,
@@ -75,9 +76,9 @@ exports.postAiSearch = async (req, res) => {
        LEFT JOIN companies c ON a.company_id = c.id
        LEFT JOIN alumni_skills aks ON a.id = aks.alumni_id
        LEFT JOIN skills s ON aks.skill_id = s.id
-       WHERE a.id = ANY($1::int[])
+       WHERE a.id IN (${placeholders})
        GROUP BY a.id, d.name, c.name`,
-      [matchingAlumniIds]
+      matchingAlumniIds
     );
 
     let results = alumniRecordsRes.rows;
@@ -85,19 +86,20 @@ exports.postAiSearch = async (req, res) => {
     // Step 5: Compute dynamic match scores and generate Groq explanations
     results = await Promise.all(
       results.map(async (alumnus) => {
-        let baseVectorScore = scoreMap[alumnus.id] || 0.70;
+        const cosineSim = scoreMap[alumnus.id] || 0.25;
+        // Scale cosine similarity (0.15 to 0.60) into a realistic match score (50% to 92%)
+        let calculatedScore = Math.min(0.90, Math.max(0.50, 0.40 + (cosineSim * 1.1)));
         
         // Boost score if extracted structured parameters match
         let structuredBoost = 0;
-        if (extracted.job_roles.some((role) => alumnus.job_role.toLowerCase().includes(role.toLowerCase()))) {
-          structuredBoost += 0.15;
-        }
-        if (extracted.interests.some((int) => (alumnus.bio || '').toLowerCase().includes(int.toLowerCase()))) {
+        if (extracted.job_roles && extracted.job_roles.some((role) => alumnus.job_role.toLowerCase().includes(role.toLowerCase()))) {
           structuredBoost += 0.10;
         }
+        if (extracted.interests && extracted.interests.some((int) => (alumnus.bio || '').toLowerCase().includes(int.toLowerCase()))) {
+          structuredBoost += 0.08;
+        }
 
-        const finalScoreVal = Math.min(0.99, Math.max(0.60, baseVectorScore + structuredBoost));
-        const matchPercentage = Math.round(finalScoreVal * 100);
+        const matchPercentage = Math.min(99, Math.round((calculatedScore + structuredBoost) * 100));
 
         // Generate short rationale via Groq
         const explanation = await aiService.generateMatchExplanation(query.trim(), alumnus);
@@ -105,7 +107,7 @@ exports.postAiSearch = async (req, res) => {
         return {
           ...alumnus,
           matchScore: matchPercentage,
-          rawScore: finalScoreVal,
+          rawScore: cosineSim,
           whyMatched: explanation,
         };
       })
