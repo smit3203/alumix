@@ -4,11 +4,18 @@ require('dotenv').config();
 let poolConfig = {};
 
 if (process.env.DATABASE_URL) {
+  const isCloudDb = 
+    process.env.DATABASE_URL.includes('render.com') ||
+    process.env.DATABASE_URL.includes('neon.tech') ||
+    process.env.DATABASE_URL.includes('railway') ||
+    process.env.DATABASE_URL.includes('supabase') ||
+    process.env.DATABASE_URL.includes('amazonaws.com') ||
+    process.env.PGSSL === 'true' ||
+    process.env.NODE_ENV === 'production';
+
   poolConfig = {
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.PGSSL === 'true' || process.env.DATABASE_URL.includes('neon.tech') 
-      ? { rejectUnauthorized: false } 
-      : false,
+    ssl: isCloudDb ? { rejectUnauthorized: false } : false,
   };
 } else {
   poolConfig = {
