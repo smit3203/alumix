@@ -109,8 +109,11 @@ exports.postLogin = async (req, res) => {
       [user.id, refreshToken, expiresAt]
     );
 
-    res.cookie('access_token', accessToken, { httpOnly: true, maxAge: 3600000 });
-    res.cookie('refresh_token', refreshToken, { httpOnly: true, maxAge: 7 * 24 * 3600000 });
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOpts = { httpOnly: true, sameSite: 'lax', secure: isProduction };
+
+    res.cookie('access_token', accessToken, { ...cookieOpts, maxAge: 3600000 });
+    res.cookie('refresh_token', refreshToken, { ...cookieOpts, maxAge: 7 * 24 * 3600000 });
 
     if (user.role === 'alumni' && !surveyCompleted) {
       return res.redirect('/alumni/survey');
@@ -173,13 +176,11 @@ exports.postRegisterStudent = async (req, res) => {
     const refreshToken = generateRefreshToken(payload);
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    await db.query(
-      'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)',
-      [userId, refreshToken, expiresAt]
-    );
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOpts = { httpOnly: true, sameSite: 'lax', secure: isProduction };
 
-    res.cookie('access_token', accessToken, { httpOnly: true, maxAge: 3600000 });
-    res.cookie('refresh_token', refreshToken, { httpOnly: true, maxAge: 7 * 24 * 3600000 });
+    res.cookie('access_token', accessToken, { ...cookieOpts, maxAge: 3600000 });
+    res.cookie('refresh_token', refreshToken, { ...cookieOpts, maxAge: 7 * 24 * 3600000 });
 
     res.redirect('/');
   } catch (error) {
@@ -283,8 +284,8 @@ exports.postRegisterAlumni = async (req, res) => {
       [userId, refreshToken, expiresAt]
     );
 
-    res.cookie('access_token', accessToken, { httpOnly: true, maxAge: 3600000 });
-    res.cookie('refresh_token', refreshToken, { httpOnly: true, maxAge: 7 * 24 * 3600000 });
+    res.cookie('access_token', accessToken, { ...cookieOpts, maxAge: 3600000 });
+    res.cookie('refresh_token', refreshToken, { ...cookieOpts, maxAge: 7 * 24 * 3600000 });
 
     // MANDATORY REQUIREMENT: Redirect alumni to survey after registration & first login!
     res.redirect('/alumni/survey');

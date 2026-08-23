@@ -66,7 +66,12 @@ async function authenticateToken(req, res, next) {
             name: decodedRefresh.name,
           });
 
-          res.cookie('access_token', newAccessToken, { httpOnly: true, maxAge: 3600000 });
+          res.cookie('access_token', newAccessToken, {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 3600000,
+          });
           req.user = decodedRefresh;
           res.locals.user = decodedRefresh;
           return next();
