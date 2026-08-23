@@ -1,0 +1,125 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container">
+    <div class="page-header">
+        <h2><i class="fa-solid fa-users-viewfinder"></i> Alumni Directory & Structured Search</h2>
+        <p>Filter alumni profiles directly via PostgreSQL structured criteria.</p>
+    </div>
+
+    <!-- Search & Filter Controls -->
+    <div class="filter-card">
+        <form action="/alumni/finder" method="GET" class="filter-form">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label for="name">Alumni Name</label>
+                    <input type="text" id="name" name="name" placeholder="Search by name..." value="<%= filters.name || '' %>">
+                </div>
+
+                <div class="filter-group">
+                    <label for="job_role">Job Role / Title</label>
+                    <input type="text" id="job_role" name="job_role" placeholder="e.g. Security Engineer" value="<%= filters.job_role || '' %>">
+                </div>
+
+                <div class="filter-group">
+                    <label for="company_name">Company</label>
+                    <input type="text" id="company_name" name="company_name" placeholder="e.g. Google" value="<%= filters.company_name || '' %>">
+                </div>
+
+                <div class="filter-group">
+                    <label for="department_id">Branch / Department</label>
+                    <select id="department_id" name="department_id">
+                        <option value="">All Departments</option>
+                        <% departments.forEach(d => { %>
+                            <option value="<%= d.id %>" <%= filters.department_id == d.id ? 'selected' : '' %>><%= d.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="graduation_year">Graduation Year</label>
+                    <input type="number" id="graduation_year" name="graduation_year" placeholder="e.g. 2021" value="<%= filters.graduation_year || '' %>">
+                </div>
+
+                <div class="filter-group">
+                    <label for="skill_id">Skill</label>
+                    <select id="skill_id" name="skill_id">
+                        <option value="">All Skills</option>
+                        <% skills.forEach(s => { %>
+                            <option value="<%= s.id %>" <%= filters.skill_id == s.id ? 'selected' : '' %>><%= s.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" placeholder="e.g. Bangalore" value="<%= filters.location || '' %>">
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-filter"></i> Apply Filters
+                </button>
+                <a href="/alumni/finder" class="btn btn-secondary">Reset Filters</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Grid -->
+    <div class="results-header">
+        <h3>Found <strong><%= alumniList.length %></strong> Alumni Matching Criteria</h3>
+    </div>
+
+    <div class="alumni-grid">
+        <% if (alumniList && alumniList.length > 0) { %>
+            <% alumniList.forEach(alumnus => { %>
+                <div class="alumni-card-item">
+                    <div class="card-header">
+                        <div class="avatar-circle">
+                            <%= alumnus.name.charAt(0).toUpperCase() %>
+                        </div>
+                        <div class="header-titles">
+                            <h3><a href="/alumni/profile/<%= alumnus.id %>"><%= alumnus.name %></a></h3>
+                            <span class="role-subtitle"><%= alumnus.job_role %></span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <p class="info-row"><i class="fa-solid fa-building"></i> <strong><%= alumnus.official_company_name || alumnus.company_name || 'N/A' %></strong></p>
+                        <p class="info-row"><i class="fa-solid fa-location-dot"></i> <%= alumnus.location || 'Location Not Specified' %></p>
+                        <p class="info-row"><i class="fa-solid fa-graduation-cap"></i> <%= alumnus.department_name || 'Engineering' %> (Class of <%= alumnus.graduation_year %>)</p>
+                        
+                        <% if (alumnus.skills_list) { %>
+                            <div class="skills-chips">
+                                <% alumnus.skills_list.split(', ').slice(0, 4).forEach(skill => { %>
+                                    <span class="chip"><%= skill %></span>
+                                <% }) %>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="badges">
+                            <% if (alumnus.mentorship_available) { %>
+                                <span class="badge badge-success"><i class="fa-solid fa-user-check"></i> Mentor</span>
+                            <% } %>
+                            <% if (alumnus.referral_available) { %>
+                                <span class="badge badge-info"><i class="fa-solid fa-id-card"></i> Referrals</span>
+                            <% } %>
+                        </div>
+                        <a href="/alumni/profile/<%= alumnus.id %>" class="btn btn-sm btn-outline">View Profile &rarr;</a>
+                    </div>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="empty-state-large">
+                <i class="fa-solid fa-folder-open empty-icon"></i>
+                <h3>No alumni match your current search filters</h3>
+                <p>Try clearing or broadening your search criteria.</p>
+            </div>
+        <% } %>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

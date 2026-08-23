@@ -1,0 +1,469 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container">
+    <div class="survey-page-header">
+        <h2><i class="fa-solid fa-clipboard-question"></i> ALUMNI CAREER & COLLEGE EXPERIENCE SURVEY</h2>
+        <p>Your responses feed directly into the PostgreSQL Database and Qdrant Semantic Vector Engine to help guide current college students.</p>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i> <%= error %>
+        </div>
+    <% } %>
+
+    <form action="/alumni/survey" method="POST" class="survey-form">
+        <!-- 1. ACADEMIC BACKGROUND -->
+        <fieldset class="survey-section">
+            <legend><i class="fa-solid fa-book-bookmark"></i> 1. ACADEMIC BACKGROUND</legend>
+            
+            <div class="survey-q">
+                <label>1. What was your branch/department?</label>
+                <select name="q1" required>
+                    <option value="Computer Engineering">Computer Engineering</option>
+                    <option value="Information Technology">Information Technology</option>
+                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                    <option value="Civil Engineering">Civil Engineering</option>
+                    <option value="Electrical Engineering">Electrical Engineering</option>
+                    <option value="Electronics & Communication Engineering">Electronics & Communication Engineering</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="survey-q">
+                <label>2. What year did you graduate?</label>
+                <input type="number" name="q2" value="<%= existingAnswers[2] || 2021 %>" min="1990" max="2026" required>
+            </div>
+
+            <div class="survey-q">
+                <label>3. What was your approximate CGPA range?</label>
+                <div class="radio-options">
+                    <label><input type="radio" name="q3" value="Below 6" required> Below 6</label>
+                    <label><input type="radio" name="q3" value="6–7"> 6–7</label>
+                    <label><input type="radio" name="q3" value="7–8"> 7–8</label>
+                    <label><input type="radio" name="q3" value="8–9" checked> 8–9</label>
+                    <label><input type="radio" name="q3" value="9–10"> 9–10</label>
+                </div>
+            </div>
+
+            <div class="survey-q">
+                <label>4. Which subjects did you find most interesting during your degree?</label>
+                <select name="q4" multiple class="multi-select">
+                    <option value="Data Structures & Algorithms" selected>Data Structures & Algorithms</option>
+                    <option value="Database Management Systems">Database Management Systems</option>
+                    <option value="Operating Systems">Operating Systems</option>
+                    <option value="Computer Networks">Computer Networks</option>
+                    <option value="Artificial Intelligence/Machine Learning">Artificial Intelligence/Machine Learning</option>
+                    <option value="Web Development">Web Development</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Software Engineering">Software Engineering</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="survey-q">
+                <label>5. Which subject or field outside your primary specialization were you particularly interested in?</label>
+                <select name="q5">
+                    <option value="Data Science">Data Science</option>
+                    <option value="Artificial Intelligence/Machine Learning">Artificial Intelligence/Machine Learning</option>
+                    <option value="Web Development">Web Development</option>
+                    <option value="Cybersecurity" selected>Cybersecurity</option>
+                    <option value="Cloud Computing">Cloud Computing</option>
+                    <option value="DevOps">DevOps</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Design/UI/UX">Design/UI/UX</option>
+                    <option value="Management">Management</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="survey-q">
+                <label>6. Did your academic interests change during college?</label>
+                <div class="radio-options">
+                    <label><input type="radio" name="q6" value="No"> No</label>
+                    <label><input type="radio" name="q6" value="Slightly"> Slightly</label>
+                    <label><input type="radio" name="q6" value="Significantly" checked> Significantly</label>
+                    <label><input type="radio" name="q6" value="Completely"> Completely</label>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- 2. TECHNICAL SKILLS & LEARNING -->
+        <fieldset class="survey-section">
+            <legend><i class="fa-solid fa-code"></i> 2. TECHNICAL SKILLS & LEARNING</legend>
+
+            <div class="survey-q">
+                <label>7. Which programming languages are you proficient in?</label>
+                <div class="checkbox-options">
+                    <label><input type="checkbox" name="q7" value="C"> C</label>
+                    <label><input type="checkbox" name="q7" value="C++"> C++</label>
+                    <label><input type="checkbox" name="q7" value="Java"> Java</label>
+                    <label><input type="checkbox" name="q7" value="Python" checked> Python</label>
+                    <label><input type="checkbox" name="q7" value="JavaScript" checked> JavaScript</label>
+                    <label><input type="checkbox" name="q7" value="TypeScript"> TypeScript</label>
+                    <label><input type="checkbox" name="q7" value="Go"> Go</label>
+                </div>
+            </div>
+
+            <div class="survey-q">
+                <label>8. Which technical areas are you proficient in?</label>
+                <div class="checkbox-options">
+                    <label><input type="checkbox" name="q8" value="Web Development" checked> Web Development</label>
+                    <label><input type="checkbox" name="q8" value="Backend Development" checked> Backend Development</label>
+                    <label><input type="checkbox" name="q8" value="Cybersecurity" checked> Cybersecurity</label>
+                    <label><input type="checkbox" name="q8" value="Cloud Computing"> Cloud Computing</label>
+                    <label><input type="checkbox" name="q8" value="Artificial Intelligence/Machine Learning"> AI / ML</label>
+                </div>
+            </div>
+
+            <div class="survey-q">
+                <label>9. When did you start seriously learning programming outside your coursework?</label>
+                <select name="q9">
+                    <option value="1st Year">1st Year</option>
+                    <option value="2nd Year" selected>2nd Year</option>
+                    <option value="3rd Year">3rd Year</option>
+                    <option value="Final Year">Final Year</option>
+                </select>
+            </div>
+
+            <div class="survey-q">
+                <label>10. Did you practice Data Structures & Algorithms (DSA) during college?</label>
+                <div class="radio-options">
+                    <label><input type="radio" name="q10" value="Regularly" checked> Regularly</label>
+                    <label><input type="radio" name="q10" value="Occasionally"> Occasionally</label>
+                    <label><input type="radio" name="q10" value="Only before placements"> Only before placements</label>
+                    <label><input type="radio" name="q10" value="No"> No</label>
+                </div>
+            </div>
+
+            <div class="survey-q">
+                <label>11. When did you start practicing DSA seriously?</label>
+                <select name="q11">
+                    <option value="1st Year">1st Year</option>
+                    <option value="2nd Year" selected>2nd Year</option>
+                    <option value="3rd Year">3rd Year</option>
+                    <option value="Final Year">Final Year</option>
+                </select>
+            </div>
+
+            <div class="survey-q">
+                <label>12. Approximately how many personal/academic projects did you complete before graduation?</label>
+                <input type="number" name="q12" value="<%= existingAnswers[12] || 5 %>" min="0" max="50" required>
+            </div>
+
+            <div class="survey-q">
+                <label>13. What type of projects did you primarily build?</label>
+                <select name="q13">
+                    <option value="Web Development" selected>Web Development</option>
+                    <option value="Cybersecurity">Cybersecurity</option>
+                    <option value="Artificial Intelligence/Machine Learning">AI / ML</option>
+                    <option value="Mobile Development">Mobile Development</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <!-- 3. COMPETITIONS & PRACTICAL EXPERIENCE -->
+        <fieldset class="survey-section">
+            <legend><i class="fa-solid fa-laptop-code"></i> 3. COMPETITIONS & PRACTICAL EXPERIENCE</legend>
+
+            <div class="survey-q">
+                <label>14. Did you participate in hackathons during college?</label>
+                <div class="radio-options">
+                    <label><input type="radio" name="q14" value="Yes" checked> Yes</label>
+                    <label><input type="radio" name="q14" value="No"> No</label>
+                </div>
+            </div>
+
+            <div class="survey-q">
+                <label>15. In which year did you participate in your first hackathon?</label>
+                <select name="q15">
+                    <option value="1st Year">1st Year</option>
+                    <option value="2nd Year" selected>2nd Year</option>
+                    <option value="3rd Year">3rd Year</option>
+                    <option value="Final Year">Final Year</option>
+                </select>
+            </div>
+
+            <div class="survey-q">
+                <label>16. Approximately how many hackathons did you participate in?</label>
+                <input type="number" name="q16" value="<%= existingAnswers[16] || 3 %>" min="0" max="30">
+            </div>
+
+            <div class="survey-q">
+                <label>17. Did you participate in coding or technical competitions?</label>
+                <select name="q17">
+                    <option value="Regularly">Regularly</option>
+                    <option value="Occasionally" selected>Occasionally</option>
+                    <option value="Never">Never</option>
+                </select>
+            </div>
+
+            <div class="survey-q">
+                <label>18. Did you contribute to open-source projects?</label>
+                <select name="q18">
+                    <option value="Yes, significantly">Yes, significantly</option>
+                    <option value="Yes, occasionally" selected>Yes, occasionally</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+
+            <div class="survey-q">
+                <label>19. Did you complete an internship before graduation?</label>
+                <div class="radio-options">
+                    <label><input type="radio" name="q19" value="Yes" checked> Yes</label>
+                    <label><input type="radio" name="q19" value="No"> No</label>
+                </div>
+            </div>
+
+            <div class="survey-q">
+                <label>20. In which year did you get your first internship?</label>
+                <select name="q20">
+                    <option value="3rd Year" selected>3rd Year</option>
+                    <option value="Final Year">Final Year</option>
+                    <option value="2nd Year">2nd Year</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <!-- 4. CO-CURRICULAR & COLLEGE LIFE -->
+        <fieldset class="survey-section">
+            <legend><i class="fa-solid fa-users"></i> 4. CO-CURRICULAR & COLLEGE LIFE</legend>
+
+            <div class="survey-q">
+                <label>21. Which co-curricular activities did you participate in?</label>
+                <select name="q21">
+                    <option value="Technical Clubs" selected>Technical Clubs</option>
+                    <option value="Student Organizations">Student Organizations</option>
+                    <option value="Volunteering">Volunteering</option>
+                    <option value="Entrepreneurship">Entrepreneurship</option>
+                </select>
+            </div>
+
+            <div class="survey-q">
+                <label>22. Did you hold any leadership position during college?</label>
+                <div class="radio-options">
+                    <label><input type="radio" name="q22" value="Yes" checked> Yes</label>
+                    <label><input type="radio" name="q22" value="No"> No</label>
+                </div>
+            </div>
+
+            <div class="survey-q">
+                <label>23. What type of leadership role did you have?</label>
+                <select name="q23">
+                    <option value="Technical Team Leadership" selected>Technical Team Leadership</option>
+                    <option value="Club Leadership">Club Leadership</option>
+                    <option value="Event Leadership">Event Leadership</option>
+                </select>
+            </div>
+
+            <div class="survey-q">
+                <label>24. Did participation in extracurricular activities affect your academic performance?</label>
+                <select name="q24">
+                    <option value="Positively" selected>Positively</option>
+                    <option value="No significant effect">No significant effect</option>
+                </select>
+            </div>
+
+            <div class="survey-q">
+                <label>25. Approximately how many hours per week did you spend on extracurricular activities?</label>
+                <input type="number" name="q25" value="<%= existingAnswers[25] || 8 %>" min="0" max="40">
+            </div>
+        </fieldset>
+
+        <!-- 5. CAREER & PLACEMENT JOURNEY -->
+        <fieldset class="survey-section">
+            <legend><i class="fa-solid fa-briefcase"></i> 5. CAREER & PLACEMENT JOURNEY</legend>
+
+            <div class="survey-q">
+                <label>26. When did you start seriously preparing for your career/placements?</label>
+                <select name="q26">
+                    <option value="3rd Year" selected>3rd Year</option>
+                    <option value="2nd Year">2nd Year</option>
+                    <option value="Final Year">Final Year</option>
+                </select>
+            </div>
+
+            <div class="survey-q">
+                <label>27. What was your first full-time job role?</label>
+                <input type="text" name="q27" value="<%= existingAnswers[27] || 'Software Developer/Engineer' %>" required>
+            </div>
+
+            <div class="survey-q">
+                <label>28. How did you get your first full-time job?</label>
+                <select name="q28">
+                    <option value="Campus Placement" selected>Campus Placement</option>
+                    <option value="Off-Campus Application">Off-Campus Application</option>
+                    <option value="Employee Referral">Employee Referral</option>
+                    <option value="Internship Conversion">Internship Conversion</option>
+                </select>
+            </div>
+
+            <div class="survey-q">
+                <label>29. Approximately how many job applications did you make before receiving your first offer?</label>
+                <input type="number" name="q29" value="<%= existingAnswers[29] || 12 %>" min="1" max="200">
+            </div>
+
+            <div class="survey-q">
+                <label>30. Approximately how many interviews did you attend before receiving your first offer?</label>
+                <input type="number" name="q30" value="<%= existingAnswers[30] || 4 %>" min="1" max="50">
+            </div>
+
+            <div class="survey-q">
+                <label>31. Which skills were most important in getting your first job?</label>
+                <select name="q31">
+                    <option value="DSA" selected>DSA & Problem Solving</option>
+                    <option value="Projects">Projects & Technical Stack</option>
+                    <option value="Internship Experience">Internship Experience</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <!-- 6. CAREER DEVELOPMENT & REFLECTION (Q32 - Q47) -->
+        <fieldset class="survey-section">
+            <legend><i class="fa-solid fa-seedling"></i> 6. CAREER DEVELOPMENT & REFLECTION</legend>
+
+            <div class="survey-q">
+                <label>32. Did your first job match the career you originally wanted?</label>
+                <div class="radio-options">
+                    <label><input type="radio" name="q32" value="Yes" checked> Yes</label>
+                    <label><input type="radio" name="q32" value="Partially"> Partially</label>
+                    <label><input type="radio" name="q32" value="No"> No</label>
+                </div>
+            </div>
+
+            <div class="survey-q">
+                <label>33. Did you change your career field after graduation?</label>
+                <div class="radio-options">
+                    <label><input type="radio" name="q33" value="No" checked> No</label>
+                    <label><input type="radio" name="q33" value="Yes"> Yes</label>
+                </div>
+            </div>
+
+            <div class="survey-q">
+                <label>34. Primary reason for changing career field (if applicable):</label>
+                <input type="text" name="q34" value="<%= existingAnswers[34] || 'Better Career Opportunity' %>">
+            </div>
+
+            <div class="survey-q">
+                <label>35. Which skill has been the most valuable in your career so far?</label>
+                <input type="text" name="q35" value="<%= existingAnswers[35] || 'Problem Solving & System Design' %>" required>
+            </div>
+
+            <div class="survey-q">
+                <label>36. Which skill do you wish you had learned during college?</label>
+                <input type="text" name="q36" value="<%= existingAnswers[36] || 'System Design & Cloud Architecture' %>" required>
+            </div>
+
+            <div class="survey-q">
+                <label>37. What do you wish you had started doing earlier during college?</label>
+                <input type="text" name="q37" value="<%= existingAnswers[37] || 'Building real-world projects and starting DSA in 2nd year' %>" required>
+            </div>
+
+            <div class="survey-q">
+                <label>38. What do you think students spend too much time on during college?</label>
+                <input type="text" name="q38" value="<%= existingAnswers[38] || 'Rote academic memorization without hands-on coding' %>">
+            </div>
+
+            <div class="survey-q">
+                <label>39. What do you think students don't spend enough time on?</label>
+                <input type="text" name="q39" value="<%= existingAnswers[39] || 'Practical projects, internships, and building a professional network' %>">
+            </div>
+
+            <div class="survey-q">
+                <label>40. If you could restart your first year of college, what would you do differently?</label>
+                <input type="text" name="q40" value="<%= existingAnswers[40] || 'Focus early on technical skills and hackathons' %>">
+            </div>
+
+            <div class="survey-q">
+                <label>41. What was the biggest mistake you made during college?</label>
+                <input type="text" name="q41" value="<%= existingAnswers[41] || 'Delaying internship applications until final year' %>">
+            </div>
+
+            <div class="survey-q">
+                <label>42. What was the most valuable non-academic experience you had during college?</label>
+                <input type="text" name="q42" value="<%= existingAnswers[42] || 'Leading a national hackathon team and technical club' %>">
+            </div>
+
+            <div class="survey-q">
+                <label>43. Which activity unexpectedly helped your career later?</label>
+                <input type="text" name="q43" value="<%= existingAnswers[43] || 'Open source contribution and tech club presentations' %>">
+            </div>
+
+            <div class="survey-q">
+                <label>44. Was there something you learned outside your degree that became important to your career?</label>
+                <div class="radio-options">
+                    <label><input type="radio" name="q44" value="Yes" checked> Yes</label>
+                    <label><input type="radio" name="q44" value="No"> No</label>
+                </div>
+            </div>
+
+            <div class="survey-q">
+                <label>45. Which college experience had the biggest impact on your career?</label>
+                <input type="text" name="q45" value="<%= existingAnswers[45] || 'Final year capstone project and summer internship' %>">
+            </div>
+
+            <div class="survey-q">
+                <label>46. What advice would you give to a student in their second year?</label>
+                <input type="text" name="q46" value="<%= existingAnswers[46] || 'Start building full-stack projects and practice core DSA consistently' %>">
+            </div>
+
+            <div class="survey-q">
+                <label>47. What advice would you give to a student preparing for placements?</label>
+                <input type="text" name="q47" value="<%= existingAnswers[47] || 'Master your project architecture and mock interview practice' %>">
+            </div>
+        </fieldset>
+
+        <!-- 7. OPEN-ENDED QUESTIONS (Q48 - Q55) -->
+        <fieldset class="survey-section">
+            <legend><i class="fa-solid fa-pen-nib"></i> 7. OPEN-ENDED ADVICE & REFLECTIONS</legend>
+
+            <div class="survey-q">
+                <label>48. What is the most valuable skill you learned during college?</label>
+                <textarea name="q48" rows="2" required><%= existingAnswers[48] || 'Ability to self-learn new technical frameworks quickly.' %></textarea>
+            </div>
+
+            <div class="survey-q">
+                <label>49. What skill do you wish you had learned earlier?</label>
+                <textarea name="q49" rows="2" required><%= existingAnswers[49] || 'Distributed systems design and cloud infrastructure automation.' %></textarea>
+            </div>
+
+            <div class="survey-q">
+                <label>50. What was the biggest mistake you made during college?</label>
+                <textarea name="q50" rows="2" required><%= existingAnswers[50] || 'Focusing solely on grades rather than building real-world software applications.' %></textarea>
+            </div>
+
+            <div class="survey-q">
+                <label>51. If you could restart college, what would you do differently?</label>
+                <textarea name="q51" rows="2" required><%= existingAnswers[51] || 'Start practicing DSA in first year and apply for off-campus internships earlier.' %></textarea>
+            </div>
+
+            <div class="survey-q">
+                <label>52. What do you wish you had known when you were in your second year?</label>
+                <textarea name="q52" rows="2" required><%= existingAnswers[52] || 'That practical project experience matters more to top tech companies than pure theory.' %></textarea>
+            </div>
+
+            <div class="survey-q">
+                <label>53. What do you think students spend too much time on?</label>
+                <textarea name="q53" rows="2" required><%= existingAnswers[53] || 'Collecting superficial certifications without building working software products.' %></textarea>
+            </div>
+
+            <div class="survey-q">
+                <label>54. What do you think students don't spend enough time on?</label>
+                <textarea name="q54" rows="2" required><%= existingAnswers[54] || 'Building end-to-end applications, networking with alumni, and communication skills.' %></textarea>
+            </div>
+
+            <div class="survey-q">
+                <label>55. What advice would you give to current students?</label>
+                <textarea name="q55" rows="3" required><%= existingAnswers[55] || 'Be consistent, build projects you are passionate about, and reach out to alumni for guidance without hesitation!' %></textarea>
+            </div>
+        </fieldset>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Save Survey & Initialize AI Vector Embedding in Qdrant
+        </button>
+    </form>
+</main>
+
+<%- include('../partials/footer') %>

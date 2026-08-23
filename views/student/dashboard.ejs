@@ -1,0 +1,128 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container">
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+        <div class="hero-content">
+            <h1 class="hero-title">AI-Powered Alumni Career Intelligence</h1>
+            <p class="hero-subtitle">Connect with experienced college alumni, unlock career guidance, and leverage vector-based AI search to find mentors in your dream field.</p>
+            <div class="hero-actions">
+                <a href="/ai/finder" class="btn btn-gradient">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Try AI Alumni Match
+                </a>
+                <a href="/alumni/finder" class="btn btn-secondary">
+                    <i class="fa-solid fa-search"></i> Browse All Alumni
+                </a>
+            </div>
+        </div>
+        <div class="hero-badge-card">
+            <i class="fa-solid fa-network-wired hero-icon"></i>
+            <h3>Empowering Future Tech Leaders</h3>
+            <p>Smart vector embeddings index real-world career trajectories and survey data.</p>
+        </div>
+    </div>
+
+    <!-- Quick Statistics Grid -->
+    <section class="section-block">
+        <h2 class="section-title"><i class="fa-solid fa-chart-simple"></i> System Quick Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon icon-blue"><i class="fa-solid fa-user-graduate"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value"><%= stats.totalAlumni %></span>
+                    <span class="stat-label">Registered Alumni</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon icon-purple"><i class="fa-solid fa-hands-holding-child"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value"><%= stats.activeMentors %></span>
+                    <span class="stat-label">Available Mentors</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon icon-green"><i class="fa-solid fa-building"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value"><%= stats.topCompaniesCount %></span>
+                    <span class="stat-label">Top Hiring Companies</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon icon-orange"><i class="fa-solid fa-comments"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value"><%= stats.totalAnswers %></span>
+                    <span class="stat-label">Advice Answers Shared</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Career Insights & Recommended Alumni Grid -->
+    <div class="grid-2col">
+        <!-- Recommended Alumni -->
+        <section class="section-block">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fa-solid fa-star"></i> Featured Alumni</h2>
+                <a href="/alumni/finder" class="view-all-link">View Directory &rarr;</a>
+            </div>
+
+            <div class="alumni-cards-stack">
+                <% if (recommendedAlumni && recommendedAlumni.length > 0) { %>
+                    <% recommendedAlumni.forEach(alumnus => { %>
+                        <div class="alumni-card">
+                            <div class="alumni-avatar">
+                                <i class="fa-solid fa-user-tie"></i>
+                            </div>
+                            <div class="alumni-details">
+                                <h3><a href="/alumni/profile/<%= alumnus.id %>"><%= alumnus.name %></a></h3>
+                                <p class="alumni-role"><i class="fa-solid fa-briefcase"></i> <%= alumnus.job_role %></p>
+                                <p class="alumni-company"><i class="fa-solid fa-building"></i> <%= alumnus.official_company_name || alumnus.company_name || 'Tech Leader' %></p>
+                                <div class="alumni-tags">
+                                    <span class="badge badge-dept"><%= alumnus.department_name || 'Engineering' %></span>
+                                    <span class="badge badge-year">Class of <%= alumnus.graduation_year %></span>
+                                </div>
+                            </div>
+                            <div class="alumni-action">
+                                <a href="/alumni/profile/<%= alumnus.id %>" class="btn btn-sm btn-outline">View Profile</a>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p class="empty-state">No alumni records found in the database yet.</p>
+                <% } %>
+            </div>
+        </section>
+
+        <!-- Career Advice Given by Alumni -->
+        <section class="section-block">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fa-solid fa-lightbulb"></i> Latest Alumni Advice</h2>
+                <a href="/advice" class="view-all-link">Ask Question &rarr;</a>
+            </div>
+
+            <div class="advice-preview-list">
+                <% if (recentAdvice && recentAdvice.length > 0) { %>
+                    <% recentAdvice.forEach(adv => { %>
+                        <div class="advice-card">
+                            <div class="advice-q">
+                                <strong><i class="fa-solid fa-circle-question"></i> <%= adv.question_title %></strong>
+                            </div>
+                            <div class="advice-a">
+                                <p>"<%= adv.answer_content %>"</p>
+                                <span class="advice-author">&mdash; <strong><%= adv.alumni_name %></strong>, <%= adv.alumni_role %> at <%= adv.alumni_company %></span>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p class="empty-state">No student questions answered yet. Be the first to ask!</p>
+                <% } %>
+            </div>
+        </section>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

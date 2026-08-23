@@ -1,0 +1,112 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container">
+    <div class="page-header">
+        <h2><i class="fa-solid fa-user-pen"></i> Edit Alumni Profile</h2>
+        <p>Updating your profile automatically updates your <strong>Qdrant AI Vector Index</strong> for student searches.</p>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <i class="fa-solid fa-circle-check"></i> <%= success %>
+        </div>
+    <% } %>
+
+    <div class="card-container">
+        <form action="/alumni/edit-profile" method="POST" class="standard-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" value="<%= alumni.name %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="department_id">Department / Branch *</label>
+                    <select id="department_id" name="department_id" required>
+                        <% departments.forEach(d => { %>
+                            <option value="<%= d.id %>" <%= alumni.department_id === d.id ? 'selected' : '' %>><%= d.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="graduation_year">Graduation Year *</label>
+                    <input type="number" id="graduation_year" name="graduation_year" value="<%= alumni.graduation_year %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="company_name">Current Company Name *</label>
+                    <input type="text" id="company_name" name="company_name" value="<%= alumni.company_name %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="job_role">Current Job Role *</label>
+                    <input type="text" id="job_role" name="job_role" value="<%= alumni.job_role %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location *</label>
+                    <input type="text" id="location" name="location" value="<%= alumni.location %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="experience_years">Years of Experience</label>
+                    <input type="number" id="experience_years" name="experience_years" value="<%= alumni.experience_years %>" min="0" max="40">
+                </div>
+
+                <div class="form-group">
+                    <label for="linkedin_url">LinkedIn URL</label>
+                    <input type="url" id="linkedin_url" name="linkedin_url" value="<%= alumni.linkedin_url %>">
+                </div>
+
+                <div class="form-group">
+                    <label for="github_url">GitHub URL</label>
+                    <input type="url" id="github_url" name="github_url" value="<%= alumni.github_url %>">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="bio">Professional Bio</label>
+                    <textarea id="bio" name="bio" rows="3"><%= alumni.bio %></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="advice_text">General Career Advice for Students</label>
+                    <textarea id="advice_text" name="advice_text" rows="3" placeholder="Share your key career learnings or advice..."><%= alumni.advice_text %></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Mentorship & Referral Availability</label>
+                    <div class="checkbox-row">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="mentorship_available" <%= alumni.mentorship_available ? 'checked' : '' %>>
+                            <span>Available to mentor students</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="referral_available" <%= alumni.referral_available ? 'checked' : '' %>>
+                            <span>Available to provide employee referrals</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Technical Skills & Proficiencies</label>
+                    <div class="checkbox-grid">
+                        <% skills.forEach(skill => { %>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="skill_ids" value="<%= skill.id %>" <%= selectedSkillIds.includes(skill.id) ? 'checked' : '' %>>
+                                <span><%= skill.name %></span>
+                            </label>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-arrows-rotate"></i> Save & Sync with Qdrant AI Vector Database
+            </button>
+        </form>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

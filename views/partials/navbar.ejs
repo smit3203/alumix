@@ -1,0 +1,52 @@
+<% if (typeof user !== 'undefined' && user) { %>
+<nav class="app-navbar">
+    <div class="navbar-container">
+        <a href="/" class="brand-logo">
+            <i class="fa-solid fa-graduation-cap logo-icon"></i>
+            <span class="brand-text">Alumni<span class="brand-accent">Intel</span></span>
+        </a>
+
+        <div class="nav-menu">
+            <a href="/alumni/finder" class="nav-link <%= typeof path !== 'undefined' && path.startsWith('/alumni/finder') ? 'active' : '' %>">
+                <i class="fa-solid fa-users-viewfinder"></i> Alumni Finder
+            </a>
+            <a href="/ai/finder" class="nav-link <%= typeof path !== 'undefined' && path.startsWith('/ai/finder') ? 'active' : '' %>">
+                <i class="fa-solid fa-brain-circuit"></i> AI Finder
+            </a>
+            <a href="/analytics/insights" class="nav-link <%= typeof path !== 'undefined' && path.startsWith('/analytics/insights') ? 'active' : '' %>">
+                <i class="fa-solid fa-chart-line"></i> Insights
+            </a>
+            <a href="/advice" class="nav-link <%= typeof path !== 'undefined' && path.startsWith('/advice') ? 'active' : '' %>">
+                <i class="fa-solid fa-comments"></i> Advice
+            </a>
+        </div>
+
+        <div class="nav-user-actions">
+            <div class="user-info">
+                <span class="user-greeting">Welcome, <strong><%= user.name || user.email %></strong></span>
+                <span class="role-badge role-<%= user.role %>"><%= user.role.toUpperCase() %></span>
+            </div>
+
+            <% if (user.role === 'student') { %>
+                <a href="/student/profile" class="btn btn-outline-sm" title="Edit Profile">
+                    <i class="fa-solid fa-user-gear"></i> Profile
+                </a>
+            <% } else if (user.role === 'alumni') { %>
+                <a href="/alumni/edit-profile" class="btn btn-outline-sm" title="Edit Profile">
+                    <i class="fa-solid fa-user-pen"></i> Profile
+                </a>
+                <a href="/alumni/career" class="btn btn-outline-sm" title="Career Timeline">
+                    <i class="fa-solid fa-timeline"></i> Journey
+                </a>
+                <a href="/alumni/survey" class="btn btn-outline-sm" title="Career Survey">
+                    <i class="fa-solid fa-clipboard-list"></i> Survey
+                </a>
+            <% } %>
+
+            <a href="/auth/logout" class="btn btn-danger-sm logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </div>
+</nav>
+<% } %>

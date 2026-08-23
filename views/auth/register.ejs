@@ -1,0 +1,158 @@
+<%- include('../partials/head') %>
+
+<div class="auth-container large-auth">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fa-solid fa-user-plus auth-logo"></i>
+            <h2>Create an Account</h2>
+            <p>Join the Alumni Career Intelligence Community</p>
+        </div>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error">
+                <i class="fa-solid fa-circle-exclamation"></i> <%= error %>
+            </div>
+        <% } %>
+
+        <!-- Tab Toggle Buttons -->
+        <div class="auth-tabs">
+            <button type="button" class="tab-btn active" onclick="switchTab('student-tab')">
+                <i class="fa-solid fa-user-graduate"></i> Register as Student
+            </button>
+            <button type="button" class="tab-btn" onclick="switchTab('alumni-tab')">
+                <i class="fa-solid fa-briefcase"></i> Register as Alumni
+            </button>
+        </div>
+
+        <!-- Student Registration Form -->
+        <form id="student-tab" action="/auth/register/student" method="POST" class="auth-form tab-content active">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="s_name">Full Name *</label>
+                    <input type="text" id="s_name" name="name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="s_email">Email Address *</label>
+                    <input type="email" id="s_email" name="email" placeholder="john@college.edu" required>
+                </div>
+                <div class="form-group">
+                    <label for="s_password">Password *</label>
+                    <input type="password" id="s_password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="s_enrollment">Enrollment Number *</label>
+                    <input type="text" id="s_enrollment" name="enrollment_number" placeholder="ENR12345678" required>
+                </div>
+                <div class="form-group">
+                    <label for="s_dept">Branch / Department *</label>
+                    <select id="s_dept" name="department_id" required>
+                        <option value="">-- Select Department --</option>
+                        <% departments.forEach(d => { %>
+                            <option value="<%= d.id %>"><%= d.name %> (<%= d.code %>)</option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="s_year">Current Year *</label>
+                    <select id="s_year" name="year" required>
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3">3rd Year</option>
+                        <option value="4">4th Year</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="s_grad_year">Expected Graduation Year *</label>
+                    <input type="number" id="s_grad_year" name="graduation_year" value="2027" min="2024" max="2030" required>
+                </div>
+                <div class="form-group full-width">
+                    <label for="s_bio">Brief Bio / Academic Summary</label>
+                    <textarea id="s_bio" name="bio" rows="2" placeholder="Tell us about your interests..."></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-user-check"></i> Complete Student Registration
+            </button>
+        </form>
+
+        <!-- Alumni Registration Form -->
+        <form id="alumni-tab" action="/auth/register/alumni" method="POST" class="auth-form tab-content">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="a_name">Full Name *</label>
+                    <input type="text" id="a_name" name="name" placeholder="Jane Smith" required>
+                </div>
+                <div class="form-group">
+                    <label for="a_email">Email Address *</label>
+                    <input type="email" id="a_email" name="email" placeholder="jane@alumni.org" required>
+                </div>
+                <div class="form-group">
+                    <label for="a_password">Password *</label>
+                    <input type="password" id="a_password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="a_dept">Branch / Department *</label>
+                    <select id="a_dept" name="department_id" required>
+                        <option value="">-- Select Department --</option>
+                        <% departments.forEach(d => { %>
+                            <option value="<%= d.id %>"><%= d.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="a_grad_year">Graduation Year *</label>
+                    <input type="number" id="a_grad_year" name="graduation_year" value="2021" min="1990" max="2025" required>
+                </div>
+                <div class="form-group">
+                    <label for="a_company">Current Company *</label>
+                    <input type="text" id="a_company" name="company_name" placeholder="Google / Microsoft" required>
+                </div>
+                <div class="form-group">
+                    <label for="a_job">Current Job Role *</label>
+                    <input type="text" id="a_job" name="job_role" placeholder="Senior Security Engineer" required>
+                </div>
+                <div class="form-group">
+                    <label for="a_location">Location *</label>
+                    <input type="text" id="a_location" name="location" placeholder="Bangalore, India / Remote" required>
+                </div>
+                <div class="form-group">
+                    <label for="a_linkedin">LinkedIn URL</label>
+                    <input type="url" id="a_linkedin" name="linkedin_url" placeholder="https://linkedin.in/in/username">
+                </div>
+                <div class="form-group">
+                    <label for="a_github">GitHub URL</label>
+                    <input type="url" id="a_github" name="github_url" placeholder="https://github.com/username">
+                </div>
+                <div class="form-group full-width">
+                    <label for="a_bio">Professional Bio</label>
+                    <textarea id="a_bio" name="bio" rows="2" placeholder="Describe your background and expertise..."></textarea>
+                </div>
+            </div>
+
+            <div class="survey-notice">
+                <i class="fa-solid fa-circle-info"></i> Note: After completing alumni registration, you will be redirected to complete the <strong>Alumni Career Survey</strong> to initialize your AI Career Profile.
+            </div>
+
+            <button type="submit" class="btn btn-accent btn-block">
+                <i class="fa-solid fa-paper-plane"></i> Register Alumni & Start Survey
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="/auth/login">Log in here</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    event.currentTarget.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+}
+</script>
+
+<%- include('../partials/footer') %>

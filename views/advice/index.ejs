@@ -1,0 +1,125 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container">
+    <div class="page-header">
+        <h2><i class="fa-solid fa-comments"></i> Student & Alumni Advice Forum</h2>
+        <p>Students ask career questions; experienced alumni share practical answers.</p>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <i class="fa-solid fa-circle-check"></i> <%= success %>
+        </div>
+    <% } %>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i> <%= error %>
+        </div>
+    <% } %>
+
+    <!-- Student Question Form -->
+    <% if (user && user.role === 'student') { %>
+        <div class="card-container">
+            <h3><i class="fa-solid fa-circle-question"></i> Ask Alumni a Career Question</h3>
+            <form action="/advice/question" method="POST" class="standard-form">
+                <div class="form-group">
+                    <label for="title">Question Title *</label>
+                    <input type="text" id="title" name="title" placeholder="e.g., How should a 2nd year student start preparing for cybersecurity internships?" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">Detailed Question Context *</label>
+                    <textarea id="content" name="content" rows="3" placeholder="Provide background about your department, current skills, and specific guidance needed..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-paper-plane"></i> Post Question for Alumni
+                </button>
+            </form>
+        </div>
+    <% } %>
+
+    <!-- Questions & Answers Thread List -->
+    <div class="questions-list">
+        <% if (questions && questions.length > 0) { %>
+            <% questions.forEach(q => { %>
+                <div class="question-thread-card">
+                    <div class="thread-question-header">
+                        <h3><i class="fa-solid fa-circle-question icon-q"></i> <%= q.title %></h3>
+                        <p class="question-meta">
+                            Asked by <strong><%= q.student_name %></strong> (<%= q.department_name || 'Student' %>, <%= q.student_year %> Year) &bull; <%= new Date(q.created_at).toLocaleDateString() %>
+                        </p>
+                        <p class="question-body"><%= q.content %></p>
+                    </div>
+
+                    <!-- Answers Stack -->
+                    <div class="answers-container">
+                        <h4><i class="fa-solid fa-reply-all"></i> Alumni Answers (<%= q.answers.length %>)</h4>
+                        
+                        <% if (q.answers && q.answers.length > 0) { %>
+                            <% q.answers.forEach(a => { %>
+                                <div class="answer-item">
+                                    <div class="answer-header">
+                                        <span class="alumni-author"><i class="fa-solid fa-user-check"></i> <strong><%= a.alumni_name %></strong> (<%= a.alumni_role %> at <%= a.alumni_company %>)</span>
+                                        <span class="answer-date"><%= new Date(a.created_at).toLocaleDateString() %></span>
+                                    </div>
+                                    <p class="answer-text" id="ans-text-<%= a.id %>"><%= a.content %></p>
+
+                                    <!-- Alumni can edit their own answer -->
+                                    <% if (user && user.role === 'alumni' && user.profile_id === a.alumni_id) { %>
+                                        <button class="btn btn-sm btn-outline btn-edit-toggle" onclick="toggleEditAnswer('<%= a.id %>')">
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit Answer
+                                        </button>
+
+                                        <form id="edit-form-<%= a.id %>" action="/advice/answer/edit" method="POST" class="edit-answer-form" style="display:none;">
+                                            <input type="hidden" name="answer_id" value="<%= a.id %>">
+                                            <textarea name="content" rows="3" required><%= a.content %></textarea>
+                                            <button type="submit" class="btn btn-sm btn-primary">Save Edit & Sync AI Vector</button>
+                                        </form>
+                                    <% } %>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <p class="empty-state-sm">No answers posted for this question yet.</p>
+                        <% } %>
+
+                        <!-- Alumni Post Answer Form -->
+                        <% if (user && user.role === 'alumni') { %>
+                            <form action="/advice/answer" method="POST" class="post-answer-form">
+                                <input type="hidden" name="question_id" value="<%= q.id %>">
+                                <div class="form-group">
+                                    <textarea name="content" rows="2" placeholder="Share your experience or advice for <%= q.student_name %>..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-accent">
+                                    <i class="fa-solid fa-reply"></i> Post Answer & Update Vector Index
+                                </button>
+                            </form>
+                        <% } %>
+                    </div>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="empty-state-large">
+                <i class="fa-solid fa-comments empty-icon"></i>
+                <h3>No questions in the Advice Forum yet</h3>
+                <p>Students can submit questions above to start receiving guidance from registered alumni.</p>
+            </div>
+        <% } %>
+    </div>
+</main>
+
+<script>
+function toggleEditAnswer(answerId) {
+    const textElem = document.getElementById('ans-text-' + answerId);
+    const formElem = document.getElementById('edit-form-' + answerId);
+    if (formElem.style.display === 'none') {
+        formElem.style.display = 'block';
+        textElem.style.display = 'none';
+    } else {
+        formElem.style.display = 'none';
+        textElem.style.display = 'block';
+    }
+}
+</script>
+
+<%- include('../partials/footer') %>

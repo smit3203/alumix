@@ -1,0 +1,134 @@
+const db = require('../config/db');
+const aiService = require('../services/ai.service');
+const embeddingService = require('../services/embedding.service');
+const qdrantService = require('../services/qdrant.service');
+
+/**
+ * Render AI Finder Page
+ */
+exports.getAiFinder = (req, res) => {
+  res.render('ai/finder', {
+    title: 'AI Finder - Semantic Alumni Match',
+    results: null,
+    query: '',
+    extractedParams: null,
+    error: null,
+  });
+};
+
+/**
+ * Search AI Finder Pipeline
+ */
+exports.postAiSearch = async (req, res) => {
+  const { query } = req.body;
+
+  if (!query || !query.trim()) {
+    return res.render('ai/finder', {
+      title: 'AI Finder - Semantic Alumni Match',
+      results: null,
+      query: '',
+      extractedParams: null,
+      error: 'Please enter a description of what kind of alumni you are looking for.',
+    });
+  }
+
+  try {
+    // Step 1: Send query to Groq LLM to extract JSON parameters
+    const extracted = await aiService.extractQueryRequirements(query.trim());
+
+    // Step 2: Generate Embedding vector (384 dimensions)
+    const queryVector = await embeddingService.generateEmbedding(query.trim());
+
+    // Step 3: Query Qdrant vector database for top matching IDs
+    const vectorMatches = await qdrantService.searchAlumniVectors(queryVector, 10);
+
+    let matchingAlumniIds = vectorMatches.map((m) => m.id);
+    const scoreMap = {};
+    vectorMatches.forEach((m) => {
+      scoreMap[m.id] = m.score;
+    });
+
+    // Fallback: If Qdrant returns no results or is unpopulated, fetch all alumni IDs to match against PostgreSQL
+    if (matchingAlumniIds.length === 0) {
+      const allAlumniRes = await db.query('SELECT id FROM alumni_profiles LIMIT 10');
+      matchingAlumniIds = allAlumniRes.rows.map((r) => r.id);
+    }
+
+    if (matchingAlumniIds.length === 0) {
+      return res.render('ai/finder', {
+        title: 'AI Finder - Semantic Alumni Match',
+        results: [],
+        query: query.trim(),
+        extractedParams: extracted,
+        error: 'No alumni currently registered in the database.',
+      });
+    }
+
+    // Step 4: Fetch complete alumni records from PostgreSQL source of truth
+    const alumniRecordsRes = await db.query(
+      `SELECT a.id, a.name, a.graduation_year, a.job_role, a.location, a.company_name,
+              a.bio, a.mentorship_available, a.referral_available, a.experience_years,
+              d.name AS department_name, c.name AS official_company_name,
+              STRING_AGG(DISTINCT s.name, ', ') AS skills_list
+       FROM alumni_profiles a
+       LEFT JOIN departments d ON a.department_id = d.id
+       LEFT JOIN companies c ON a.company_id = c.id
+       LEFT JOIN alumni_skills aks ON a.id = aks.alumni_id
+       LEFT JOIN skills s ON aks.skill_id = s.id
+       WHERE a.id = ANY($1::int[])
+       GROUP BY a.id, d.name, c.name`,
+      [matchingAlumniIds]
+    );
+
+    let results = alumniRecordsRes.rows;
+
+    // Step 5: Compute dynamic match scores and generate Groq explanations
+    results = await Promise.all(
+      results.map(async (alumnus) => {
+        let baseVectorScore = scoreMap[alumnus.id] || 0.70;
+        
+        // Boost score if extracted structured parameters match
+        let structuredBoost = 0;
+        if (extracted.job_roles.some((role) => alumnus.job_role.toLowerCase().includes(role.toLowerCase()))) {
+          structuredBoost += 0.15;
+        }
+        if (extracted.interests.some((int) => (alumnus.bio || '').toLowerCase().includes(int.toLowerCase()))) {
+          structuredBoost += 0.10;
+        }
+
+        const finalScoreVal = Math.min(0.99, Math.max(0.60, baseVectorScore + structuredBoost));
+        const matchPercentage = Math.round(finalScoreVal * 100);
+
+        // Generate short rationale via Groq
+        const explanation = await aiService.generateMatchExplanation(query.trim(), alumnus);
+
+        return {
+          ...alumnus,
+          matchScore: matchPercentage,
+          rawScore: finalScoreVal,
+          whyMatched: explanation,
+        };
+      })
+    );
+
+    // Sort descending by relevance score
+    results.sort((a, b) => b.matchScore - a.matchScore);
+
+    res.render('ai/finder', {
+      title: 'AI Finder - Semantic Alumni Match',
+      results,
+      query: query.trim(),
+      extractedParams: extracted,
+      error: null,
+    });
+  } catch (error) {
+    console.error('Error executing AI Finder search:', error);
+    res.render('ai/finder', {
+      title: 'AI Finder - Semantic Alumni Match',
+      results: null,
+      query: query.trim(),
+      extractedParams: null,
+      error: 'AI Finder service encountered an unexpected error: ' + error.message,
+    });
+  }
+};

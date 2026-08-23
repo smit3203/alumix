@@ -1,0 +1,45 @@
+<%- include('../partials/head') %>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fa-solid fa-graduation-cap auth-logo"></i>
+            <h2>Welcome Back</h2>
+            <p>Sign in to access AI-Powered Alumni Intelligence</p>
+        </div>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error">
+                <i class="fa-solid fa-circle-exclamation"></i> <%= error %>
+            </div>
+        <% } %>
+
+        <% if (typeof message !== 'undefined' && message) { %>
+            <div class="alert alert-info">
+                <i class="fa-solid fa-circle-info"></i> <%= message %>
+            </div>
+        <% } %>
+
+        <form action="/auth/login" method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="email"><i class="fa-solid fa-envelope"></i> Email Address</label>
+                <input type="email" id="email" name="email" placeholder="name@college.edu" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-right-to-bracket"></i> Sign In
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="/auth/register">Register here</a></p>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,88 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container">
+    <div class="page-header">
+        <h2><i class="fa-solid fa-timeline"></i> Career Journey Timeline Management</h2>
+        <p>Document your career progression. Every entry is indexed for semantic AI search.</p>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <i class="fa-solid fa-circle-check"></i> <%= success %>
+        </div>
+    <% } %>
+
+    <div class="grid-2col">
+        <!-- Add New Timeline Entry Form -->
+        <div class="card-container">
+            <h3><i class="fa-solid fa-plus-circle"></i> Add Career Experience</h3>
+            <form action="/alumni/career/add" method="POST" class="standard-form">
+                <div class="form-group">
+                    <label for="job_title">Job Title *</label>
+                    <input type="text" id="job_title" name="job_title" placeholder="e.g. Senior Security Analyst" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="company_name">Company Name *</label>
+                    <input type="text" id="company_name" name="company_name" placeholder="e.g. CrowdStrike / Google" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="start_year">Start Year *</label>
+                    <input type="number" id="start_year" name="start_year" value="2022" min="1990" max="2026" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="end_year">End Year (Leave blank if current)</label>
+                    <input type="number" id="end_year" name="end_year" placeholder="e.g. 2024">
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="is_current">
+                        <span>This is my current role</span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Role Responsibilities & Achievements</label>
+                    <textarea id="description" name="description" rows="3" placeholder="Describe your key tasks, tech stack, and accomplishments..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> Add Entry & Sync AI Index
+                </button>
+            </form>
+        </div>
+
+        <!-- Current Career Journeys Timeline -->
+        <div class="card-container">
+            <h3><i class="fa-solid fa-list-check"></i> Your Recorded Journeys</h3>
+            <div class="timeline">
+                <% if (careerJourneys && careerJourneys.length > 0) { %>
+                    <% careerJourneys.forEach(j => { %>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header-row">
+                                    <h4><%= j.job_title %></h4>
+                                    <form action="/alumni/career/delete/<%= j.id %>" method="POST" onsubmit="return confirm('Delete this career entry?');">
+                                        <button type="submit" class="btn btn-danger-sm btn-icon"><i class="fa-solid fa-trash"></i></button>
+                                    </form>
+                                </div>
+                                <h5 class="timeline-company"><%= j.company_name %></h5>
+                                <span class="timeline-date"><%= j.start_year %> &ndash; <%= j.is_current ? 'Present' : j.end_year %></span>
+                                <p><%= j.description %></p>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p class="empty-state">No timeline entries recorded yet. Add your first role on the left!</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

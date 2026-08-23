@@ -1,0 +1,107 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container">
+    <!-- Alumni Header Card -->
+    <div class="alumni-profile-header">
+        <div class="profile-avatar-large">
+            <%= alumni.name.charAt(0).toUpperCase() %>
+        </div>
+        <div class="profile-main-info">
+            <div class="profile-name-row">
+                <h2><%= alumni.name %></h2>
+                <% if (typeof isSelf !== 'undefined' && isSelf) { %>
+                    <a href="/alumni/edit-profile" class="btn btn-outline-sm"><i class="fa-solid fa-pen"></i> Edit Profile</a>
+                <% } %>
+            </div>
+            <h3 class="profile-title"><%= alumni.job_role %> at <strong><%= alumni.official_company_name || alumni.company_name %></strong></h3>
+            <p class="profile-meta">
+                <span><i class="fa-solid fa-graduation-cap"></i> <%= alumni.department_name || 'Engineering' %> (Class of <%= alumni.graduation_year %>)</span> &bull;
+                <span><i class="fa-solid fa-location-dot"></i> <%= alumni.location || 'Remote' %></span> &bull;
+                <span><i class="fa-solid fa-briefcase"></i> <%= alumni.experience_years %> Years Exp</span>
+            </p>
+
+            <div class="profile-social-links">
+                <% if (alumni.linkedin_url) { %>
+                    <a href="<%= alumni.linkedin_url %>" target="_blank" class="social-link linkedin"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+                <% } %>
+                <% if (alumni.github_url) { %>
+                    <a href="<%= alumni.github_url %>" target="_blank" class="social-link github"><i class="fa-brands fa-github"></i> GitHub</a>
+                <% } %>
+                <% if (alumni.mentorship_available) { %>
+                    <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Available for Mentorship</span>
+                <% } %>
+                <% if (alumni.referral_available) { %>
+                    <span class="badge badge-info"><i class="fa-solid fa-id-card"></i> Providing Referrals</span>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-2col">
+        <!-- Left Column: Bio, Skills & Advice -->
+        <div class="profile-left-col">
+            <!-- Bio Section -->
+            <section class="section-card">
+                <h3><i class="fa-solid fa-user"></i> About & Bio</h3>
+                <p class="bio-text"><%= alumni.bio || 'No professional bio added yet.' %></p>
+            </section>
+
+            <!-- Skills Section -->
+            <section class="section-card">
+                <h3><i class="fa-solid fa-gears"></i> Technical Skills & Expertise</h3>
+                <div class="skills-chips">
+                    <% if (skills && skills.length > 0) { %>
+                        <% skills.forEach(s => { %>
+                            <span class="chip chip-large"><%= s.name %></span>
+                        <% }) %>
+                    <% } else { %>
+                        <p class="empty-state">No technical skills listed.</p>
+                    <% } %>
+                </div>
+            </section>
+
+            <!-- Advice & Guidance -->
+            <section class="section-card">
+                <h3><i class="fa-solid fa-comment-dots"></i> Career Advice for Students</h3>
+                <blockquote class="advice-quote">
+                    "<%= alumni.advice_text || 'Focus on fundamental algorithms, consistent personal projects, and networking early during your second year.' %>"
+                </blockquote>
+            </section>
+        </div>
+
+        <!-- Right Column: Career Journey Timeline -->
+        <div class="profile-right-col">
+            <section class="section-card">
+                <div class="section-header">
+                    <h3><i class="fa-solid fa-timeline"></i> Career Journey Timeline</h3>
+                    <% if (typeof isSelf !== 'undefined' && isSelf) { %>
+                        <a href="/alumni/career" class="btn btn-sm btn-outline"><i class="fa-solid fa-plus"></i> Manage Journey</a>
+                    <% } %>
+                </div>
+
+                <div class="timeline">
+                    <% if (careerJourneys && careerJourneys.length > 0) { %>
+                        <% careerJourneys.forEach(j => { %>
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <h4><%= j.job_title %></h4>
+                                    <h5 class="timeline-company"><%= j.company_name %></h5>
+                                    <span class="timeline-date">
+                                        <i class="fa-regular fa-calendar"></i> <%= j.start_year %> &ndash; <%= j.is_current ? 'Present' : j.end_year %>
+                                    </span>
+                                    <p><%= j.description %></p>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <p class="empty-state">No career timeline entries added yet.</p>
+                    <% } %>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

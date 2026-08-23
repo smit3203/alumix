@@ -1,0 +1,72 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container">
+    <div class="profile-page-header">
+        <h2><i class="fa-solid fa-user-graduate"></i> Student Profile Management</h2>
+        <p>Keep your profile updated so alumni can better assist you.</p>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <i class="fa-solid fa-circle-check"></i> <%= success %>
+        </div>
+    <% } %>
+
+    <div class="card-container">
+        <form action="/student/profile" method="POST" class="standard-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" value="<%= student.name %>" required>
+                </div>
+                <div class="form-group">
+                    <label for="enrollment_number">Enrollment Number</label>
+                    <input type="text" id="enrollment_number" name="enrollment_number" value="<%= student.enrollment_number %>" required>
+                </div>
+                <div class="form-group">
+                    <label for="department_id">Department / Branch</label>
+                    <select id="department_id" name="department_id" required>
+                        <% departments.forEach(d => { %>
+                            <option value="<%= d.id %>" <%= student.department_id === d.id ? 'selected' : '' %>><%= d.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="year">Current Academic Year</label>
+                    <select id="year" name="year" required>
+                        <option value="1" <%= student.year === 1 ? 'selected' : '' %>>1st Year</option>
+                        <option value="2" <%= student.year === 2 ? 'selected' : '' %>>2nd Year</option>
+                        <option value="3" <%= student.year === 3 ? 'selected' : '' %>>3rd Year</option>
+                        <option value="4" <%= student.year === 4 ? 'selected' : '' %>>4th Year</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="graduation_year">Graduation Year</label>
+                    <input type="number" id="graduation_year" name="graduation_year" value="<%= student.graduation_year %>" required>
+                </div>
+                <div class="form-group full-width">
+                    <label for="bio">Bio & Career Goals</label>
+                    <textarea id="bio" name="bio" rows="3"><%= student.bio %></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>Select Career Interests</label>
+                    <div class="checkbox-grid">
+                        <% interests.forEach(interest => { %>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="interest_ids" value="<%= interest.id %>" <%= selectedInterestIds.includes(interest.id) ? 'checked' : '' %>>
+                                <span><%= interest.name %></span>
+                            </label>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+            </button>
+        </form>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

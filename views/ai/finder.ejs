@@ -1,0 +1,107 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container">
+    <div class="ai-finder-hero">
+        <div class="ai-hero-header">
+            <h2><i class="fa-solid fa-brain-circuit ai-sparkle"></i> AI-Powered Alumni Finder</h2>
+            <p>Describe your career aspirations, interests, or target role in plain English. Our <strong>Groq LLM</strong> parses your intent and searches <strong>Qdrant Vector Embeddings</strong> for your best alumni matches.</p>
+        </div>
+
+        <form action="/ai/finder" method="POST" class="ai-search-box">
+            <div class="textarea-wrapper">
+                <textarea name="query" id="ai-query-input" rows="4" placeholder="Describe what kind of alumni you are looking for... E.g., 'I am interested in cybersecurity and want to find an alumnus who works at top security firms and can guide me about internships and referrals.'" required><%= query %></textarea>
+                <div class="textarea-footer">
+                    <span class="example-btn" onclick="fillExample()"><i class="fa-solid fa-wand-magic-sparkles"></i> Try Example Prompt</span>
+                    <button type="submit" class="btn btn-gradient btn-lg">
+                        <i class="fa-solid fa-magnifying-glass"></i> AI Semantic Search
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i> <%= error %>
+        </div>
+    <% } %>
+
+    <% if (extractedParams) { %>
+        <div class="extracted-json-card">
+            <div class="json-header">
+                <i class="fa-solid fa-code-branch"></i> 
+                <span><strong>Groq LLM Extracted Structured Requirements (JSON):</strong></span>
+            </div>
+            <pre class="json-display"><code><%= JSON.stringify(extractedParams, null, 4) %></code></pre>
+        </div>
+    <% } %>
+
+    <% if (results !== null) { %>
+        <div class="results-summary">
+            <h3>Matched <strong><%= results.length %></strong> Alumni via Qdrant Semantic Vectors & PostgreSQL Data</h3>
+        </div>
+
+        <div class="ai-results-list">
+            <% if (results.length > 0) { %>
+                <% results.forEach(alumnus => { %>
+                    <div class="ai-match-card">
+                        <div class="match-badge-col">
+                            <div class="score-circle">
+                                <span class="score-num"><%= alumnus.matchScore %>%</span>
+                                <span class="score-text">Match</span>
+                            </div>
+                        </div>
+
+                        <div class="match-info-col">
+                            <div class="match-header">
+                                <h3><a href="/alumni/profile/<%= alumnus.id %>"><%= alumnus.name %></a></h3>
+                                <span class="match-role"><%= alumnus.job_role %> &bull; <strong><%= alumnus.official_company_name || alumnus.company_name %></strong></span>
+                            </div>
+
+                            <div class="why-matched-box">
+                                <i class="fa-solid fa-lightbulb icon-why"></i>
+                                <div>
+                                    <strong>Why Matched:</strong>
+                                    <p><%= alumnus.whyMatched %></p>
+                                </div>
+                            </div>
+
+                            <div class="match-details">
+                                <span><i class="fa-solid fa-graduation-cap"></i> <%= alumnus.department_name || 'Engineering' %> (Class of <%= alumnus.graduation_year %>)</span>
+                                <span><i class="fa-solid fa-location-dot"></i> <%= alumnus.location || 'Remote' %></span>
+                                <% if (alumnus.skills_list) { %>
+                                    <div class="skills-chips-inline">
+                                        <% alumnus.skills_list.split(', ').slice(0, 5).forEach(skill => { %>
+                                            <span class="chip chip-sm"><%= skill %></span>
+                                        <% }) %>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <div class="match-action-col">
+                            <a href="/alumni/profile/<%= alumnus.id %>" class="btn btn-primary btn-sm">
+                                View Full Profile &rarr;
+                            </a>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="empty-state-large">
+                    <i class="fa-solid fa-robot empty-icon"></i>
+                    <h3>No alumni vectors closely matched your description</h3>
+                    <p>Try refining your request or adding specific skills and interests.</p>
+                </div>
+            <% } %>
+        </div>
+    <% } %>
+</main>
+
+<script>
+function fillExample() {
+    document.getElementById('ai-query-input').value = "I am interested in cybersecurity and want to find an alumnus who works in cybersecurity and can guide me about internships.";
+}
+</script>
+
+<%- include('../partials/footer') %>

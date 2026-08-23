@@ -1,0 +1,118 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container">
+    <div class="page-header">
+        <h2><i class="fa-solid fa-chart-line"></i> Data Intelligence Dashboard & Insights</h2>
+        <p>Real-time analytics aggregated directly from PostgreSQL alumni databases.</p>
+    </div>
+
+    <div class="grid-2col">
+        <!-- 1. Career Distribution by Job Role -->
+        <div class="chart-card">
+            <h3><i class="fa-solid fa-chart-pie"></i> Career Distribution by Job Role</h3>
+            <canvas id="careerChart" height="220"></canvas>
+        </div>
+
+        <!-- 2. Most Common Skills -->
+        <div class="chart-card">
+            <h3><i class="fa-solid fa-chart-bar"></i> Top Alumni Skills & Expertise</h3>
+            <canvas id="skillsChart" height="220"></canvas>
+        </div>
+
+        <!-- 3. Top Employing Companies -->
+        <div class="chart-card">
+            <h3><i class="fa-solid fa-building"></i> Top Hiring Companies</h3>
+            <canvas id="companiesChart" height="220"></canvas>
+        </div>
+
+        <!-- 4. Department Distribution -->
+        <div class="chart-card">
+            <h3><i class="fa-solid fa-sitemap"></i> Department Breakdown</h3>
+            <canvas id="deptChart" height="220"></canvas>
+        </div>
+    </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Career Distribution Chart
+    const careerData = <%- JSON.stringify(careerDistribution) %>;
+    const ctxCareer = document.getElementById('careerChart').getContext('2d');
+    new Chart(ctxCareer, {
+        type: 'doughnut',
+        data: {
+            labels: careerData.map(d => d.job_role),
+            datasets: [{
+                data: careerData.map(d => parseInt(d.count, 10)),
+                backgroundColor: ['#6366f1', '#a855f7', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#06b6d4', '#64748b']
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'right', labels: { color: '#e2e8f0' } } } }
+    });
+
+    // 2. Skills Distribution Chart
+    const skillsData = <%- JSON.stringify(skillsDistribution) %>;
+    const ctxSkills = document.getElementById('skillsChart').getContext('2d');
+    new Chart(ctxSkills, {
+        type: 'bar',
+        data: {
+            labels: skillsData.map(d => d.name),
+            datasets: [{
+                label: 'Alumni Count',
+                data: skillsData.map(d => parseInt(d.count, 10)),
+                backgroundColor: '#6366f1'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { ticks: { color: '#e2e8f0' } },
+                y: { ticks: { color: '#e2e8f0', stepSize: 1 } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 3. Top Companies Chart
+    const compData = <%- JSON.stringify(companiesDistribution) %>;
+    const ctxComp = document.getElementById('companiesChart').getContext('2d');
+    new Chart(ctxComp, {
+        type: 'bar',
+        data: {
+            labels: compData.map(d => d.company),
+            datasets: [{
+                label: 'Alumni Employed',
+                data: compData.map(d => parseInt(d.count, 10)),
+                backgroundColor: '#10b981'
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            scales: {
+                x: { ticks: { color: '#e2e8f0', stepSize: 1 } },
+                y: { ticks: { color: '#e2e8f0' } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 4. Department Chart
+    const deptData = <%- JSON.stringify(departmentDistribution) %>;
+    const ctxDept = document.getElementById('deptChart').getContext('2d');
+    new Chart(ctxDept, {
+        type: 'pie',
+        data: {
+            labels: deptData.map(d => d.department),
+            datasets: [{
+                data: deptData.map(d => parseInt(d.count, 10)),
+                backgroundColor: ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#64748b']
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'right', labels: { color: '#e2e8f0' } } } }
+    });
+});
+</script>
+
+<%- include('../partials/footer') %>
