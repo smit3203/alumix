@@ -439,21 +439,41 @@ a:hover {
     margin-bottom: 0.4rem;
 }
 
-.filter-group input, .filter-group select, .standard-form input, .standard-form select, .standard-form textarea, .auth-form input, .auth-form select, .auth-form textarea {
+.filter-group input:not([type="checkbox"]):not([type="radio"]),
+.filter-group select,
+.standard-form input:not([type="checkbox"]):not([type="radio"]),
+.standard-form select,
+.standard-form textarea,
+.auth-form input:not([type="checkbox"]):not([type="radio"]),
+.auth-form select,
+.auth-form textarea,
+.survey-form input:not([type="checkbox"]):not([type="radio"]),
+.survey-form select,
+.survey-form textarea {
     width: 100%;
-    padding: 0.6rem 0.8rem;
+    padding: 0.65rem 0.85rem;
     background: var(--bg-input);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     color: #fff;
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.filter-group input:focus, .standard-form input:focus, .auth-form input:focus {
+.filter-group input:focus,
+.standard-form input:focus,
+.auth-form input:focus,
+.survey-form input:focus,
+.standard-form textarea:focus,
+.auth-form textarea:focus,
+.survey-form textarea:focus,
+.standard-form select:focus,
+.auth-form select:focus,
+.survey-form select:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.35);
 }
 
 .filter-actions { display: flex; gap: 1rem; }
@@ -658,7 +678,109 @@ a:hover {
 .survey-q { margin-bottom: 1.5rem; }
 .survey-q label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
 
-.radio-options, .checkbox-options, .checkbox-grid { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.4rem; }
+/* Checkboxes, Radios & Selection Grids */
+input[type="checkbox"],
+input[type="radio"] {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+    accent-color: var(--primary);
+    cursor: pointer;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+
+.checkbox-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.6rem;
+}
+
+.checkbox-label,
+.radio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    user-select: none;
+    padding: 0.6rem 0.9rem;
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+}
+
+.checkbox-label:hover,
+.radio-label:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+.checkbox-label:has(input:checked),
+.radio-label:has(input:checked) {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--primary);
+    color: #fff;
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.25);
+}
+
+.checkbox-label span,
+.radio-label span {
+    line-height: 1.3;
+    display: inline-block;
+}
+
+.radio-options,
+.checkbox-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.radio-options label,
+.checkbox-options label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 400;
+    padding: 0.45rem 0.8rem;
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+    margin-bottom: 0;
+}
+
+.radio-options label:hover,
+.checkbox-options label:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+.radio-options label:has(input:checked),
+.checkbox-options label:has(input:checked) {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--primary);
+    color: #fff;
+}
 
 .multi-select { height: 120px; }
 

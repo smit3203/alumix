@@ -8,11 +8,12 @@ async function seedDatabase() {
   console.log('Starting Database Seeding Process...');
 
   try {
-    // 0. Test DB connection & auto-create database if needed
+    // 0. Test DB connection & auto-create database if local
     try {
       await db.query('SELECT 1');
+      console.log('PostgreSQL database connection verified.');
     } catch (connErr) {
-      if (connErr.code === '3D000') { // database "alumni_db" does not exist
+      if (connErr.code === '3D000' && !process.env.DATABASE_URL) { // database "alumni_db" does not exist locally
         console.log('Database "alumni_db" does not exist. Creating it now...');
         const { Client } = require('pg');
         const rootClient = new Client({
@@ -207,7 +208,11 @@ async function seedDatabase() {
 
       // MANDATORY VECTOR SYNC FOR SEEDED ALUMNI!
       console.log(`Syncing Qdrant Vector for Alumni: ${a.name}...`);
-      await qdrantService.syncAlumniToQdrant(alumniId);
+      try {
+        await qdrantService.syncAlumniToQdrant(alumniId);
+      } catch (syncErr) {
+        console.warn(`Vector sync skipped for ${a.name}:`, syncErr.message);
+      }
     }
 
     // 4. Insert Student Users & Profiles

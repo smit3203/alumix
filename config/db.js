@@ -3,19 +3,25 @@ require('dotenv').config();
 
 let poolConfig = {};
 
-if (process.env.DATABASE_URL) {
+const dbUrl = process.env.DATABASE_URL || '';
+
+if (dbUrl) {
   const isCloudDb = 
-    process.env.DATABASE_URL.includes('render.com') ||
-    process.env.DATABASE_URL.includes('neon.tech') ||
-    process.env.DATABASE_URL.includes('railway') ||
-    process.env.DATABASE_URL.includes('supabase') ||
-    process.env.DATABASE_URL.includes('amazonaws.com') ||
+    dbUrl.includes('neon.tech') ||
+    dbUrl.includes('render.com') ||
+    dbUrl.includes('railway') ||
+    dbUrl.includes('supabase') ||
+    dbUrl.includes('amazonaws.com') ||
+    dbUrl.includes('sslmode=require') ||
     process.env.PGSSL === 'true' ||
     process.env.NODE_ENV === 'production';
 
   poolConfig = {
-    connectionString: process.env.DATABASE_URL,
+    connectionString: dbUrl,
     ssl: isCloudDb ? { rejectUnauthorized: false } : false,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
   };
 } else {
   poolConfig = {
@@ -25,13 +31,16 @@ if (process.env.DATABASE_URL) {
     password: process.env.PGPASSWORD || 'postgres',
     database: process.env.PGDATABASE || 'alumni_db',
     ssl: process.env.PGSSL === 'true' ? { rejectUnauthorized: false } : false,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
   };
 }
 
 const pool = new Pool(poolConfig);
 
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle PostgreSQL client:', err);
+  console.error('Unexpected error on idle PostgreSQL client:', err.message);
 });
 
 module.exports = {

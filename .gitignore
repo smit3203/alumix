@@ -3,12 +3,10 @@ node_modules/
 
 # Environment variables & secrets (CRITICAL)
 .env
-
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+.neon
+.neon/
+alumix/
+alumix-1/
 
 # OS generated files
 .DS_Store
